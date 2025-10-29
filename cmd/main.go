@@ -1,8 +1,9 @@
 package main
 
 import (
-	"LogGenerator/parser"
+	"LogGenerator/segment"
 	"fmt"
+	"log"
 )
 
 // func main() {
@@ -19,10 +20,34 @@ import (
 // 	fmt.Println("Message:", entry.Message)
 // }
 
+// func main() {
+// 	entries, _ := parser.ParseLogFiles("../logs")
+// 	for _, entry := range entries {
+// 		fmt.Println(entry)
+// 	}
+// 	fmt.Println(len(entries))
+// }
+
+// segment
+
 func main() {
-	entries, _ := parser.ParseLogFiles("../logs")
-	for _, entry := range entries {
-		fmt.Println(entry)
+	logStore, err := segment.ParseLogSegments("../logs")
+	if err != nil {
+		log.Fatalf("Error parsing log segments: %v", err)
 	}
-	fmt.Println(len(entries))
+	if len(logStore.Segments) == 0 {
+		fmt.Println("No log segments found.")
+		return
+	}
+	seg := logStore.Segments[0]
+	fmt.Printf("File Name: %s\n", seg.FileName)
+	fmt.Printf("Start Time: %v\n", seg.StartTime)
+	fmt.Printf("End Time: %v\n", seg.EndTime)
+	fmt.Printf("Number of Log Entries: %d\n", len(seg.LogEntries))
+	fmt.Println("\n Log Entries")
+
+	for _, entry := range seg.LogEntries {
+		fmt.Printf("[%s]  |  %s  |  %s  |  %s  | %s\n", entry.Level, entry.Component, entry.Host, entry.RequestID, entry.Message)
+	}
+
 }
