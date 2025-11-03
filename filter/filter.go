@@ -2,91 +2,113 @@ package filter
 
 import (
 	"LogGenerator/model"
+	"fmt"
+	"sync"
 	"time"
 )
 
 func FilterLogs(store model.LogStore, levels, components, hosts, reqIDs []string, startTime time.Time, endTime time.Time) []model.LogEntry {
+	start := time.Now()
+
 	var result []model.LogEntry
+	var mu sync.Mutex
+	var wg sync.WaitGroup
 
 	for _, segment := range store.Segments {
-		totalFilters := 0
-		if !startTime.IsZero() && segment.EndTime.Before(startTime) {
-			continue
-		}
-		if !endTime.IsZero() && segment.StartTime.After(endTime) {
-			continue
-		}
-		matchedIndex := make(map[int]bool)
-		if len(levels) > 0 {
-			totalFilters++
-			for _, level := range levels {
-				for _, idx := range segment.Index.ByLevel[level] {
-					matchedIndex[idx] = true
-				}
-			}
-		}
-		if len(components) > 0 {
-			totalFilters++
-			componentFilter := make(map[int]bool)
-			for _, component := range components {
-				for _, idx := range segment.Index.ByComponent[component] {
-					if len(matchedIndex) == 0 || matchedIndex[idx] {
-						componentFilter[idx] = true
-					}
-				}
-			}
-			matchedIndex = componentFilter
-		}
+		seg := segment
+		wg.Add(1)
+		go func(seg model.Segment) {
+			defer wg.Done()
+			var localResults []model.LogEntry
+			totalFilters := 0
 
-		if len(hosts) > 0 {
-			totalFilters++
-			hostFilter := make(map[int]bool)
-			for _, host := range hosts {
-				for _, idx := range segment.Index.ByHost[host] {
-					if len(matchedIndex) == 0 || matchedIndex[idx] {
-						hostFilter[idx] = true
+			if !startTime.IsZero() && segment.EndTime.Before(startTime) {
+				return
+			}
+			if !endTime.IsZero() && segment.StartTime.After(endTime) {
+				return
+			}
+			matchedIndex := make(map[int]bool)
+			if len(levels) > 0 {
+				totalFilters++
+				for _, level := range levels {
+					for _, idx := range segment.Index.ByLevel[level] {
+						matchedIndex[idx] = true
 					}
 				}
 			}
-			matchedIndex = hostFilter
-		}
-		if len(reqIDs) > 0 {
-			totalFilters++
-			requestFilter := make(map[int]bool)
-			for _, reqID := range reqIDs {
-				for _, idx := range segment.Index.ByReqID[reqID] {
-					if len(matchedIndex) == 0 || matchedIndex[idx] {
-						requestFilter[idx] = true
+			if len(components) > 0 {
+				totalFilters++
+				componentFilter := make(map[int]bool)
+				for _, component := range components {
+					for _, idx := range segment.Index.ByComponent[component] {
+						if len(matchedIndex) == 0 || matchedIndex[idx] {
+							componentFilter[idx] = true
+						}
 					}
 				}
+				matchedIndex = componentFilter
 			}
-			matchedIndex = requestFilter
-		}
-		if totalFilters == 0 && startTime.IsZero() && endTime.IsZero() {
-			result = append(result, segment.LogEntries...)
-		} else if totalFilters == 0 {
-			for _, entry := range segment.LogEntries {
+
+			if len(hosts) > 0 {
+				totalFilters++
+				hostFilter := make(map[int]bool)
+				for _, host := range hosts {
+					for _, idx := range segment.Index.ByHost[host] {
+						if len(matchedIndex) == 0 || matchedIndex[idx] {
+							hostFilter[idx] = true
+						}
+					}
+				}
+				matchedIndex = hostFilter
+			}
+			if len(reqIDs) > 0 {
+				totalFilters++
+				requestFilter := make(map[int]bool)
+				for _, reqID := range reqIDs {
+					for _, idx := range segment.Index.ByReqID[reqID] {
+						if len(matchedIndex) == 0 || matchedIndex[idx] {
+							requestFilter[idx] = true
+						}
+					}
+				}
+				matchedIndex = requestFilter
+			}
+			if totalFilters == 0 && startTime.IsZero() && endTime.IsZero() {
+				result = append(result, segment.LogEntries...)
+			} else if totalFilters == 0 {
+				for _, entry := range segment.LogEntries {
+					if !startTime.IsZero() && entry.Time.Before(startTime) {
+						continue
+					}
+					if !endTime.IsZero() && entry.Time.After(endTime) {
+						continue
+					}
+					result = append(result, entry)
+				}
+			}
+			for idx := range matchedIndex {
+				entry := segment.LogEntries[idx]
 				if !startTime.IsZero() && entry.Time.Before(startTime) {
 					continue
 				}
 				if !endTime.IsZero() && entry.Time.After(endTime) {
 					continue
 				}
+
 				result = append(result, entry)
 			}
-		}
-		for idx := range matchedIndex {
-			entry := segment.LogEntries[idx]
-			if !startTime.IsZero() && entry.Time.Before(startTime) {
-				continue
-			}
-			if !endTime.IsZero() && entry.Time.After(endTime) {
-				continue
-			}
-			result = append(result, entry)
-		}
 
+			mu.Lock()
+			result = append(result, localResults...)
+			mu.Unlock()
+		}(seg)
 	}
 
+	wg.Wait()
+
+	elapsed := time.Since(start)
+	fmt.Println("Filtering took:", elapsed)
 	return result
+
 }
