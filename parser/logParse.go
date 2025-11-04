@@ -73,21 +73,3 @@ func ParseLogFiles(s string) ([]model.LogEntry, error) {
 	}
 	return allEntries, nil
 }
-
-// func buildSegmentIndex(entries []model.LogEntry) model.SegmentIndex {
-// 	index := model.SegmentIndex{
-// 		ByLevel:     make(map[string][]int),
-// 		ByComponent: make(map[string][]int),
-// 		ByHost:      make(map[string][]int),
-// 		ByReqID:     make(map[string][]int),
-// 	}
-
-// 	for i, entry := range entries {
-// 		index.ByLevel[string(entry.Level)] = append(index.ByLevel[string(entry.Level)], i)
-// 		index.ByComponent[entry.Component] = append(index.ByComponent[entry.Component], i)
-// 		index.ByHost[entry.Host] = append(index.ByHost[entry.Host], i)
-// 		index.ByReqID[entry.RequestID] = append(index.ByReqID[entry.RequestID], i)
-// 	}
-
-// 	return index
-// }
