@@ -2,3 +2,4 @@ loggen
 logs
 tools
 */coverage.out
+*.json
