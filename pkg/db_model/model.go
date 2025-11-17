@@ -352,3 +352,30 @@ func toStringSlice(nums []uint) []string {
 	}
 	return s
 }
+
+func SplitUserFilter(input string) []string {
+	var parts []string
+	current := ""
+	tokens := strings.Fields(input)
+	for _, tok := range tokens {
+		// If token contains an operator, then new condition
+		if strings.Contains(tok, "=") ||
+			strings.Contains(tok, ">=") ||
+			strings.Contains(tok, "<=") ||
+			strings.Contains(tok, ">") ||
+			strings.Contains(tok, "<") {
+			// Save previous condition
+			if current != "" {
+				parts = append(parts, current)
+			}
+			current = tok
+		} else {
+			// continuation (timestamps)
+			current += " " + tok
+		}
+	}
+	if current != "" {
+		parts = append(parts, current)
+	}
+	return parts
+}

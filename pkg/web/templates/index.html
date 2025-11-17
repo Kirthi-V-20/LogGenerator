@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Log Search</title>
+    <style>
+       
+        .log-container {
+            max-width: 90%;
+            margin: 0 auto;
+            text-align: justify;
+        }
+
+        .log-entry {
+            margin: 20px 0;
+            white-space: nowrap; 
+            overflow-x: auto; 
+            padding-left:17%;
+            text-align:justify;
+            font-size:17px;
+        }
+    </style>
+</head>
+<body>
+
+<center><h1 style="color:rgb(134, 130, 7)">Search Logs</h1></center>
+
+<form method="POST" action="/search">
+    <center><input type="text" name="filter" placeholder="Search logs..." style="width:350px; height:35px; background-color: rgb(230, 225,200);  padding-left:14px;font-size:15px;color:black"><button type="submit" style="height:40px; width:80px; margin-left:15px; background-color: rgb(178,172,17); color:rgb(245,240,220)">Search</button></center>
+    
+</form>
+{{ if .Error }}
+    <p style="color:rgb(195, 0, 255);">{{ .Error }}</p>
+{{ end }}
+
+{{ if .Entries }}
+<center><h2 style="color:rgb(134, 130, 7);">Filtered Logs</h2></center>
+
+<div class="log-container">
+    {{ range .Entries }}
+    <div class="log-entry">
+        Time: {{ .TimeStamp }} | Level: {{ .Level.Level }} | Component: {{ .Component.Component }} | Host: {{ .Host.Host }} | RequestID: {{ .RequestId }} | Msg: {{ .Message }}
+    </div>
+    {{ end }}
+</div>
+
+{{ end }}
+
+
+
+</body>
+</html>
+

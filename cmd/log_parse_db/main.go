@@ -4,10 +4,12 @@ import (
 	databasemodel "LogGenerator/pkg/db_model"
 	dbmodel "LogGenerator/pkg/db_model"
 	"LogGenerator/pkg/parser"
-
+	ginhandler "LogGenerator/pkg/web"
 	"fmt"
 	"log/slog"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 const dbUrl = "postgresql:///log_analyzer?host=/var/run/postgresql/"
@@ -51,7 +53,12 @@ func handleCommand(args []string) error {
 		}
 		slog.Info("Filtering successful!", "no. of entries:", len(entries))
 		return nil
-
+	case "web":
+		r := gin.Default()
+		r.LoadHTMLGlob("pkg/web/templates/*")
+		ginhandler.DBRef = db
+		ginhandler.SetupRoutes(r)
+		r.Run(":8081")
 	default:
 		return fmt.Errorf("unknown command: %s (expected: init | add | query)", args[0])
 
