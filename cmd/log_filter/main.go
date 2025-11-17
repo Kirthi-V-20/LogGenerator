@@ -1,8 +1,8 @@
 package main
 
 import (
-	"LogGenerator/filter"
 	"LogGenerator/model"
+	"LogGenerator/pkg/filter"
 	"encoding/json"
 	"flag"
 	"fmt"

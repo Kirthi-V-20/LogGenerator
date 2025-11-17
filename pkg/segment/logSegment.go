@@ -1,9 +1,9 @@
 package segment
 
 import (
-	"LogGenerator/indexer"
 	"LogGenerator/model"
-	"LogGenerator/parser"
+	"LogGenerator/pkg/indexer"
+	"LogGenerator/pkg/parser"
 	"bufio"
 	"fmt"
 	"os"

@@ -2,7 +2,7 @@ package main
 
 import (
 	"LogGenerator/database"
-	"LogGenerator/segment"
+	"LogGenerator/pkg/segment"
 	"context"
 	"flag"
 	"log/slog"

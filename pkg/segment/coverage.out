@@ -1,0 +1,17 @@
+mode: set
+LogGenerator/segment/logSegment.go:13.60,18.16 3 1
+LogGenerator/segment/logSegment.go:18.16,20.3 1 1
+LogGenerator/segment/logSegment.go:21.2,21.29 1 1
+LogGenerator/segment/logSegment.go:21.29,22.19 1 1
+LogGenerator/segment/logSegment.go:22.19,23.12 1 1
+LogGenerator/segment/logSegment.go:25.3,27.17 3 1
+LogGenerator/segment/logSegment.go:27.17,29.4 1 0
+LogGenerator/segment/logSegment.go:30.3,34.22 4 1
+LogGenerator/segment/logSegment.go:34.22,37.18 3 1
+LogGenerator/segment/logSegment.go:37.18,39.5 1 1
+LogGenerator/segment/logSegment.go:41.3,42.39 2 1
+LogGenerator/segment/logSegment.go:42.39,44.4 1 0
+LogGenerator/segment/logSegment.go:46.3,46.27 1 1
+LogGenerator/segment/logSegment.go:46.27,47.12 1 1
+LogGenerator/segment/logSegment.go:49.3,57.57 3 1
+LogGenerator/segment/logSegment.go:59.2,59.22 1 1

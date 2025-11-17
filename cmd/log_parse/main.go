@@ -1,7 +1,7 @@
 package main
 
 import (
-	"LogGenerator/segment"
+	"LogGenerator/pkg/segment"
 	"encoding/json"
 	"flag"
 	"fmt"
